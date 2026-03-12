@@ -489,3 +489,23 @@ cdef class S3FileSystem(FileSystem):
         The AWS region this filesystem connects to.
         """
         return frombytes(self.s3fs.region())
+
+    def update_access_key(self, access_key, secret_key, session_token=None):
+        cdef:
+            CS3Options options
+            shared_ptr[CS3FileSystem] wrapped
+
+        if session_token is None:
+            session_token = ""
+
+        options = self.s3fs.options()
+        options.ConfigureAccessKey(
+            tobytes(access_key),
+            tobytes(secret_key),
+            tobytes(session_token)
+        )
+
+        with nogil:
+            wrapped = GetResultValue(CS3FileSystem.Make(options))
+
+        self.init(<shared_ptr[CFileSystem]> wrapped)
