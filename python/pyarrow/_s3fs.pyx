@@ -491,6 +491,12 @@ cdef class S3FileSystem(FileSystem):
         return frombytes(self.s3fs.region())
 
     def update_access_key(self, access_key, secret_key, session_token=None):
+        """
+        Re-creates underlying file system with new credentials.
+        Allows to update credentials in the fly and this way
+        allows to work with time limited credentials.
+
+        """
         cdef:
             CS3Options options
             shared_ptr[CS3FileSystem] wrapped
